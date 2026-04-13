@@ -1,47 +1,156 @@
 // app/page.tsx
+export const dynamic = 'force-dynamic';
+
 import { turso } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 
-export default async function Home() {
-  // 1. Turso에서 데이터 가져오기
-  const result = await turso.execute('SELECT * FROM users');
-  const users = result.rows;
+const fruitOptions = [
+  { value: '🍓', emoji: '🍓', label: 'Berry' },
+  { value: '🍇', emoji: '🍇', label: 'Grape' },
+  { value: '🍊', emoji: '🍊', label: 'Orange' },
+  { value: '🍋', emoji: '🍋', label: 'Lemon' },
+  { value: '🍒', emoji: '🍒', label: 'Cherry' },
+  { value: '⭐', emoji: '⭐', label: 'Star' },
+  { value: '🍎', emoji: '🍎', label: 'Apple' },
+  { value: '🍐', emoji: '🍐', label: 'Pear' },
+  { value: '🍉', emoji: '🍉', label: 'Melon' },
+];
 
-  // 2. 새로운 사용자를 추가하는 서버 액션(Server Action)
-  async function addUser(formData: FormData) {
+export default async function Home() {
+  let farmers: any[] = [];
+  try {
+    const result = await turso.execute('SELECT * FROM farmers ORDER BY id DESC');
+    farmers = result.rows;
+  } catch (e) {
+    console.error("Table might not exist yet.", e);
+  }
+
+  async function addNote(formData: FormData) {
     'use server';
-    const name = formData.get('name');
+    const name = formData.get('name') as string;
+    const message = formData.get('message') as string;
+    const fruit = formData.get('fruit') as string;
+
+    if (!name || !message || !fruit) return;
 
     await turso.execute({
-      sql: 'INSERT INTO users (name) VALUES (?)',
-      args: [name as string]
+      sql: 'INSERT INTO farmers (name, message, favorite_fruit) VALUES (?, ?, ?)',
+      args: [name, message, fruit]
     });
 
-    revalidatePath('/'); // 새로운 데이터를 화면에 보여주기 위해 새로고침
+    revalidatePath('/');
+  }
+
+  async function deleteNote(formData: FormData) {
+    'use server';
+    const id = formData.get('id') as string;
+    if (!id) return;
+
+    await turso.execute({
+      sql: 'DELETE FROM farmers WHERE id = ?',
+      args: [id]
+    });
+
+    revalidatePath('/');
   }
 
   return (
-    <main className="p-10 font-sans min-h-screen bg-white text-black">
-      <h1 className="text-2xl font-bold mb-4 text-black">Turso + Vercel 스터디 앱</h1>
+    <main className="min-h-screen p-6 md:p-10 flex flex-col items-center justify-center">
 
-      <form action={addUser} className="mb-6 flex gap-2">
-        <input 
-          type="text" 
-          name="name" 
-          placeholder="이름을 입력하세요..." 
-          required 
-          className="border border-gray-300 p-2 rounded text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
-          추가하기
-        </button>
-      </form>
+      <div className="w-full max-w-5xl flex flex-col md:flex-row gap-8">
 
-      <ul className="list-disc pl-5">
-        {users.map((user, index) => (
-          <li key={index} className="text-gray-800 mb-1">{user.name as string}</li>
-        ))}
-      </ul>
+        {/* ── Left: Form ── */}
+        <div className="w-full md:w-[340px] shrink-0">
+          <div className="stardew-dialogue">
+            <h2
+              className="text-center pb-3 mb-5 border-b-4 border-[#5A321A]"
+              style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '0.8rem', lineHeight: 1.8, color: '#5A321A' }}
+            >
+              Town Guestbook
+            </h2>
+
+            <form action={addNote} className="flex flex-col gap-4">
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xl text-[#5A321A]">Farmer Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Farmer Bob"
+                  required
+                  maxLength={20}
+                  className="stardew-input"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xl text-[#5A321A]">Favorite Item</label>
+                <div className="grid grid-cols-3 gap-2 bg-[#F4DFB0] p-2 rounded border-4 border-[#C88D50]"
+                     style={{ boxShadow: 'inset 0 0 0 2px #5A321A' }}>
+                  {fruitOptions.map((opt) => (
+                    <label key={opt.value} className="fruit-option">
+                      <input type="radio" name="fruit" value={opt.value} className="hidden" required />
+                      <span className="fruit-emoji">{opt.emoji}</span>
+                      <span className="fruit-label">{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xl text-[#5A321A]">Message</label>
+                <textarea
+                  name="message"
+                  placeholder="Need help watering crops today..."
+                  required
+                  rows={3}
+                  className="stardew-input resize-none"
+                />
+              </div>
+
+              <button type="submit" className="pixel-btn mt-1">
+                Leave Message
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* ── Right: Entries ── */}
+        <div className="flex-1 flex flex-col gap-4 min-w-0">
+
+          {farmers.length === 0 ? (
+            <div className="stardew-dialogue text-center py-10">
+              <p className="text-2xl italic text-[#5A321A]">The guestbook is empty...</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4 max-h-[620px] overflow-y-auto pr-1">
+              {farmers.map((farmer, index) => (
+                <div key={index} className="stardew-dialogue flex gap-4 items-start py-3 px-4">
+                  <div className="shrink-0 w-14 h-14 flex items-center justify-center rounded-lg bg-[#F4DFB0] border-2 border-[#C88D50] text-4xl leading-none"
+                       style={{ boxShadow: 'inset 0 0 0 1px #5A321A' }}>
+                    {farmer.favorite_fruit as string}
+                  </div>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="font-bold text-[#5A321A] text-2xl leading-tight">{farmer.name as string}</span>
+                    <p className="whitespace-pre-wrap break-words text-xl leading-snug mt-1">{farmer.message as string}</p>
+                  </div>
+                  <form action={deleteNote} className="shrink-0">
+                    <input type="hidden" name="id" value={farmer.id as number} />
+                    <button
+                      type="submit"
+                      title="Delete post"
+                      className="delete-btn"
+                    >
+                      ✕
+                    </button>
+                  </form>
+                </div>
+              ))}
+            </div>
+          )}
+
+        </div>
+      </div>
     </main>
   );
 }

@@ -1,26 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #1A0E06;
+  --foreground: #3e2723;
+  --dialogue-bg: #FAE8C3;
+  --border-gold: #C88D50;
+  --border-dark: #5A321A;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'VT323', monospace;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+/* ── Dialogue box ── */
+.stardew-dialogue {
+  background: var(--dialogue-bg);
+  border: 4px solid var(--border-gold);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 3px var(--border-dark),
+    0 0 0 4px var(--border-dark),
+    8px 8px 0 rgba(0, 0, 0, 0.55);
+  color: var(--foreground);
+  padding: 1.5rem;
+}
+
+/* ── Inputs ── */
+.stardew-input {
+  background: #fffdf5;
+  border: 3px solid var(--border-gold);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  font-family: 'VT323', monospace;
+  font-size: 1.5rem;
+  color: var(--foreground);
+  width: 100%;
+}
+.stardew-input:focus {
+  outline: none;
+  border-color: var(--border-dark);
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(90, 50, 26, 0.2);
+}
+
+/* ── Submit button ── */
+.pixel-btn {
+  background-color: #4CAF50;
+  border: 3px solid #2E7D32;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 2px #81C784, 4px 4px 0 rgba(0, 0, 0, 0.4);
+  color: #fff;
+  text-transform: uppercase;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  width: 100%;
+}
+.pixel-btn:hover {
+  background-color: #66BB6A;
+}
+.pixel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: inset 0 0 0 2px #81C784;
+}
+
+/* ── Fruit picker ── */
+.fruit-option {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0.4rem 0.2rem;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.35);
+  transition: background 0.1s, border-color 0.1s;
+}
+.fruit-option:hover {
+  background: rgba(90, 50, 26, 0.12);
+  border-color: var(--border-gold);
+}
+.fruit-option:has(input:checked) {
+  background: var(--border-dark);
+  border-color: var(--border-dark);
+  box-shadow: inset 0 0 0 2px var(--border-gold);
+}
+.fruit-option:has(input:checked) .fruit-label {
+  color: #FAE8C3;
+}
+.fruit-emoji {
+  font-size: 2rem;
+  line-height: 1;
+  user-select: none;
+}
+.fruit-label {
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  color: var(--border-dark);
+  line-height: 1;
+}
+
+/* ── Delete button ── */
+.delete-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #c0392b;
+  border: 2px solid #7b241c;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 0.75rem;
+  font-family: 'Press Start 2P', monospace;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.1s;
+}
+.delete-btn:hover {
+  background: #e74c3c;
+}
+.delete-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
