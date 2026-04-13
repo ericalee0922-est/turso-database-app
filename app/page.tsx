@@ -118,6 +118,17 @@ export default async function Home() {
         {/* ── Right: Entries ── */}
         <div className="flex-1 flex flex-col gap-4 min-w-0">
 
+          <div className="flex justify-end">
+            <a
+              href="/api/export"
+              download="guestbook.csv"
+              className="pixel-btn"
+              style={{ width: 'auto', display: 'inline-block', textDecoration: 'none' }}
+            >
+              ↓ Export CSV
+            </a>
+          </div>
+
           {farmers.length === 0 ? (
             <div className="stardew-dialogue text-center py-10">
               <p className="text-2xl italic text-[#5A321A]">The guestbook is empty...</p>
