@@ -5,7 +5,14 @@ import { turso } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import StardewTitle from './StardewTitle';
 
-const fruitOptions = [
+type FruitOption = {
+  value: string;
+  image?: string;
+  emoji?: string;
+  label: string;
+};
+
+const fruitOptions: FruitOption[] = [
   { value: '🍌', image: '/Banana.png', label: 'Banana' },
   { value: '🍒', image: '/Cranberry.png', label: 'Cranberry' },
   { value: '🍇', image: '/grape.png', label: 'Grape' },
