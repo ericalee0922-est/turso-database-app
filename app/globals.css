@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1A0E06;
+  --background: #bbd2e0;
   --foreground: #3e2723;
   --dialogue-bg: #FAE8C3;
   --border-gold: #C88D50;
@@ -11,6 +11,10 @@
 
 body {
   background-color: var(--background);
+  background-image: url('/bg_mountains.png');
+  background-size: cover;
+  background-position: center bottom;
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: 'VT323', monospace;
   font-size: 1.5rem;

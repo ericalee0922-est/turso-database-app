@@ -3,17 +3,18 @@ export const dynamic = 'force-dynamic';
 
 import { turso } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import StardewTitle from './StardewTitle';
 
 const fruitOptions = [
-  { value: '🍓', emoji: '🍓', label: 'Berry' },
-  { value: '🍇', emoji: '🍇', label: 'Grape' },
-  { value: '🍊', emoji: '🍊', label: 'Orange' },
-  { value: '🍋', emoji: '🍋', label: 'Lemon' },
-  { value: '🍒', emoji: '🍒', label: 'Cherry' },
-  { value: '⭐', emoji: '⭐', label: 'Star' },
-  { value: '🍎', emoji: '🍎', label: 'Apple' },
-  { value: '🍐', emoji: '🍐', label: 'Pear' },
-  { value: '🍉', emoji: '🍉', label: 'Melon' },
+  { value: '🍌', image: '/Banana.png', label: 'Banana' },
+  { value: '🍒', image: '/Cranberry.png', label: 'Cranberry' },
+  { value: '🍇', image: '/grape.png', label: 'Grape' },
+  { value: '🥭', image: '/Mango.png', label: 'Mango' },
+  { value: '🍊', image: '/Orange.png', label: 'Orange' },
+  { value: '🍑', image: '/Peach.png', label: 'Peach' },
+  { value: '🍉', image: '/Powdermelon.png', label: 'Powdermelon' },
+  { value: '⭐', image: '/Starfruit.png', label: 'Starfruit' },
+  { value: '🍅', image: '/Tomato.png', label: 'Tomato' },
 ];
 
 export default async function Home() {
@@ -56,6 +57,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen p-6 md:p-10 flex flex-col items-center justify-center">
+      <StardewTitle />
 
       <div className="w-full max-w-5xl flex flex-col md:flex-row gap-8">
 
@@ -66,13 +68,13 @@ export default async function Home() {
               className="text-center pb-3 mb-5 border-b-4 border-[#5A321A]"
               style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '0.8rem', lineHeight: 1.8, color: '#5A321A' }}
             >
-              Town Guestbook
+              Visitor Log
             </h2>
 
             <form action={addNote} className="flex flex-col gap-4">
 
               <div className="flex flex-col gap-1">
-                <label className="text-xl text-[#5A321A]">Farmer Name</label>
+                <label className="text-xl text-[#5A321A]">Name</label>
                 <input
                   type="text"
                   name="name"
@@ -86,11 +88,15 @@ export default async function Home() {
               <div className="flex flex-col gap-1">
                 <label className="text-xl text-[#5A321A]">Favorite Item</label>
                 <div className="grid grid-cols-3 gap-2 bg-[#F4DFB0] p-2 rounded border-4 border-[#C88D50]"
-                     style={{ boxShadow: 'inset 0 0 0 2px #5A321A' }}>
+                  style={{ boxShadow: 'inset 0 0 0 2px #5A321A' }}>
                   {fruitOptions.map((opt) => (
                     <label key={opt.value} className="fruit-option">
                       <input type="radio" name="fruit" value={opt.value} className="hidden" required />
-                      <span className="fruit-emoji">{opt.emoji}</span>
+                      {opt.image ? (
+                        <img src={opt.image} alt={opt.label} className="w-8 h-8 object-contain drop-shadow-sm mb-1" style={{ imageRendering: 'pixelated' }} />
+                      ) : (
+                        <span className="fruit-emoji">{opt.emoji}</span>
+                      )}
                       <span className="fruit-label">{opt.label}</span>
                     </label>
                   ))}
@@ -101,7 +107,7 @@ export default async function Home() {
                 <label className="text-xl text-[#5A321A]">Message</label>
                 <textarea
                   name="message"
-                  placeholder="Need help watering crops today..."
+                  placeholder="I love Pelican Town!"
                   required
                   rows={3}
                   className="stardew-input resize-none"
@@ -118,17 +124,6 @@ export default async function Home() {
         {/* ── Right: Entries ── */}
         <div className="flex-1 flex flex-col gap-4 min-w-0">
 
-          <div className="flex justify-end">
-            <a
-              href="/api/export"
-              download="guestbook.csv"
-              className="pixel-btn"
-              style={{ width: 'auto', display: 'inline-block', textDecoration: 'none' }}
-            >
-              ↓ Export CSV
-            </a>
-          </div>
-
           {farmers.length === 0 ? (
             <div className="stardew-dialogue text-center py-10">
               <p className="text-2xl italic text-[#5A321A]">The guestbook is empty...</p>
@@ -138,8 +133,14 @@ export default async function Home() {
               {farmers.map((farmer, index) => (
                 <div key={index} className="stardew-dialogue flex gap-4 items-start py-3 px-4">
                   <div className="shrink-0 w-14 h-14 flex items-center justify-center rounded-lg bg-[#F4DFB0] border-2 border-[#C88D50] text-4xl leading-none"
-                       style={{ boxShadow: 'inset 0 0 0 1px #5A321A' }}>
-                    {farmer.favorite_fruit as string}
+                    style={{ boxShadow: 'inset 0 0 0 1px #5A321A' }}>
+                    {(() => {
+                      const opt = fruitOptions.find(f => f.value === farmer.favorite_fruit);
+                      if (opt && opt.image) {
+                        return <img src={opt.image} alt="fruit" className="w-10 h-10 object-contain drop-shadow-sm" style={{ imageRendering: 'pixelated' }} />;
+                      }
+                      return farmer.favorite_fruit as string;
+                    })()}
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
                     <span className="font-bold text-[#5A321A] text-2xl leading-tight">{farmer.name as string}</span>
